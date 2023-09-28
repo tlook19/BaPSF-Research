@@ -1,3 +1,5 @@
-__all__ = ["datastructs", "datafuncs", "langsweep"]
+from ._datastructs import *
+from ._langsweep import *
+from ._datafuncs import *
 
-from bapsfda.analysis import datastructs, datafuncs, langsweep
+__all__ = [s for s in dir() if not s.startswith("_")]

@@ -1,6 +1,13 @@
+__all__ = [
+    "SignalArray",
+    "DaqArray",
+    "CurrentDaqArray",
+    "VoltageDaqArray",
+]
+
 import numpy as np
 from astropy import units as u
-from .datafuncs import butt_low, sav_smooth
+from ._datafuncs import butt_low, sav_smooth
 from abc import ABC, abstractmethod
 
 

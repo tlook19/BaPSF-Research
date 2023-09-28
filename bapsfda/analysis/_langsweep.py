@@ -1,10 +1,12 @@
 import numpy as np
-from .datastructs import CurrentDaqArray, VoltageDaqArray
-from .datafuncs import butt_low, sav_smooth
+from ._datastructs import CurrentDaqArray, VoltageDaqArray
+from ._datafuncs import butt_low, sav_smooth
 from astropy import units as u
 from astropy.units.quantity import Quantity
-from astropy.constants import e, k_B, m_p, m_e
-from scipy.optimize import curve_fit, poly_fit
+from astropy.constants import e, k_B, m_p
+from scipy.optimize import curve_fit
+
+__all__ = ["LangmuirSweep"]
 
 
 class LangmuirSweep:
