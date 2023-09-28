@@ -1,3 +1,3 @@
-__all__ = ["visualization", ""]
+__all__ = ["plotting"]
 
-from . import animation, visualization
+from . import animation, plotting

@@ -1,3 +1,3 @@
-__all__ = ["datastructs"]
+__all__ = ["datastructs", "datafuncs"]
 
 from . import conditional, datastructs, fastcam, datafuncs, langsweep, wavelets

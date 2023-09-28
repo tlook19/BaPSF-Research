@@ -1,7 +1,6 @@
 import numpy as np
 from scipy.signal import find_peaks
 
-
 # def gather_peaks(flucts, trig_rms, multi, peak_distance):
 #     """
 #     Finds peaks in a signal above a multiple of the RMS of the signal.
