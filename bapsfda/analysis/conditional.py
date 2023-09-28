@@ -1,5 +1,5 @@
-import numpy as np
-from scipy.signal import find_peaks
+# import numpy as np
+# from scipy.signal import find_peaks
 
 # def gather_peaks(flucts, trig_rms, multi, peak_distance):
 #     """
