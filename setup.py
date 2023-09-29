@@ -5,7 +5,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 setup(
     name="bapsfda",
-    version="0.1.1d",
+    version="0.1.2",
     description="An data analysis package for BaPSF/LAPD",
     author="Thomas R. Look",
     author_email="tlook@physics.ucla.edu",
