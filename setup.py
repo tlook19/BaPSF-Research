@@ -5,11 +5,11 @@ here = os.path.abspath(os.path.dirname(__file__))
 
 setup(
     name="bapsfda",
-    version="0.1.1c",
+    version="0.1.1d",
     description="An data analysis package for BaPSF/LAPD",
     author="Thomas R. Look",
     author_email="tlook@physics.ucla.edu",
-    packages=["bapsfda"],
+    packages=["bapsfda", "bapsfda.analysis", "bapsfda.visualization"],
     install_requires=[
         "numpy",
         "scipy",
