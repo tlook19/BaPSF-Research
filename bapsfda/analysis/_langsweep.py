@@ -35,7 +35,7 @@ class LangmuirSweep:
         Raises:
             Exception: _description_
         """
-        if t_start.unit or t_ramp.unit or t_period.unit != u.ms:
+        if t_start.unit != u.ms or t_ramp.unit != u.ms or t_period.unit != u.ms:
             raise Exception("Sweep t_ parameters must be in milliseconds.")
         self._sweep_params = {
             "t_start": t_start,
