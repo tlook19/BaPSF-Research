@@ -48,7 +48,6 @@ class DaqArray(SignalArray):
             nshots (int): Number of shots per probe position
         """
         self._signal_array = signal * u.V
-        self._time_array = np.arange(self._nt) * self._dt
         self._run_props = {
             "sample_freq": adc_clk / sample_avg * u.Hz,
             "ny": ny,
@@ -57,6 +56,9 @@ class DaqArray(SignalArray):
             "dt": sample_avg / adc_clk * u.s,
             "nt": self._signal_array.shape[-1],
         }
+        self._time_array = (
+            np.arange(self._run_props["nt"]) * self._run_props["dt"]
+        ).to(u.s)
 
     @property
     def signal_array(self) -> np.ndarray:
@@ -88,7 +90,17 @@ class DaqArray(SignalArray):
 
 
 class CurrentDaqArray(DaqArray):
-    def __init__(self, gain, resistance) -> None:
+    def __init__(
+        self,
+        signal: np.ndarray,
+        adc_clk: float,
+        sample_avg: int,
+        ny: int,
+        nx: int,
+        nshots: int,
+        gain,
+        resistance,
+    ) -> None:
         """Take a raw DAQ signal array and convert it to a current array in Amps.
 
         Args:
@@ -100,19 +112,28 @@ class CurrentDaqArray(DaqArray):
         """
         if resistance.unit != u.ohm:
             raise Exception("Sense resistance must be in ohms.")
-        super().__init__()
+        super().__init__(signal, adc_clk, sample_avg, ny, nx, nshots)
         self._run_props["gain"] = gain
         self._run_props["resistance"] = resistance
         self._signal_array = (self._signal_array / (gain * resistance)).to(u.A)
 
 
 class VoltageDaqArray(DaqArray):
-    def __init__(self, gain) -> None:
+    def __init__(
+        self,
+        signal: np.ndarray,
+        adc_clk: float,
+        sample_avg: int,
+        ny: int,
+        nx: int,
+        nshots: int,
+        gain: float,
+    ) -> None:
         """Take a raw DAQ signal array and convert it to a voltage array in Volts.
 
         Args:
             gain (float): gain of the measurement circuit to be divided out
         """
-        super().__init__()
+        super().__init__(signal, adc_clk, sample_avg, ny, nx, nshots)
         self._run_props["gain"] = gain
         self._signal_array = self._signal_array / gain
