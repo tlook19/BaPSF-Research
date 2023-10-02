@@ -67,7 +67,7 @@ class LangmuirSweep:
             raise Exception("Current and voltage signal arrays must be the same shape.")
         if isweep.run_props["dt"] != vsweep.run_props["dt"]:
             raise Exception("Current and voltage signals must have the same time step.")
-        if isweep.time_array != vsweep.time_array:
+        if np.any(isweep.time_array != vsweep.time_array):
             raise Exception(
                 "Current and voltage signals must have the same time array."
             )
