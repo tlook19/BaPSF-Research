@@ -71,8 +71,8 @@ class LangmuirSweep:
             raise Exception(
                 "Current and voltage signals must have the same time array."
             )
-        isweep = butt_low(isweep, 5e5, isweep.run_props["sample_freq"], order=4)
-        vsweep = butt_low(vsweep, 5e5, vsweep.run_props["sample_freq"], order=4)
+        isweep = butt_low(isweep, 5e5, isweep.run_props["sample_freq"].value, order=4)
+        vsweep = butt_low(vsweep, 5e5, vsweep.run_props["sample_freq"].value, order=4)
         isweep = isweep - np.average(isweep[:, -2000:-1], axis=-1)
         t_start_ind = int(
             self._sweep_params["t_start"].to(u.s) / isweep.run_props["dt"]
