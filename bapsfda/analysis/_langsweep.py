@@ -71,9 +71,15 @@ class LangmuirSweep:
             raise Exception(
                 "Current and voltage signals must have the same time array."
             )
-        isweep = butt_low(isweep, 5e5, isweep.run_props["sample_freq"].value, order=4)
-        vsweep = butt_low(vsweep, 5e5, vsweep.run_props["sample_freq"].value, order=4)
-        isweep = isweep - np.average(isweep[:, -2000:-1], axis=-1)
+        iu = isweep.signal_array.unit
+        vu = vsweep.signal_array.unit
+        isweep_filt = butt_low(
+            isweep.signal_array, 5e5, isweep.run_props["sample_freq"].value, order=4
+        )
+        vsweep_filt = butt_low(
+            vsweep.signal_array, 5e5, vsweep.run_props["sample_freq"].value, order=4
+        )
+        isweep_filt = isweep_filt - np.average(isweep_filt[:, -2000:-1], axis=-1)
         t_start_ind = int(
             self._sweep_params["t_start"].to(u.s) / isweep.run_props["dt"]
         )
@@ -88,16 +94,16 @@ class LangmuirSweep:
             + self._sweep_params["t_start_ind"]
         )
         v_slices = np.empty(
-            (vsweep.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
+            (vsweep_filt.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
         )
         i_slices = np.empty(
-            (isweep.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
+            (isweep_filt.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
         )
-        for i in range(vsweep.shape[0]):
+        for i in range(vsweep_filt.shape[0]):
             for j in range(self._sweep_params["nsweeps"]):
                 k = t_start_ind + j * t_period_ind
-                vsort = vsweep[i, j, k : k + t_ramp_ind]
-                isort = isweep[i, j, k : k + t_ramp_ind]
+                vsort = vsweep_filt[i, j, k : k + t_ramp_ind]
+                isort = isweep_filt[i, j, k : k + t_ramp_ind]
                 sort_ind = np.argsort(vsort)
                 v_slices[i, j] = sav_smooth(
                     np.take_along_axis(vsort, sort_ind, axis=0), 25
@@ -105,7 +111,7 @@ class LangmuirSweep:
                 i_slices[i, j] = sav_smooth(
                     np.take_along_axis(isort, sort_ind, axis=0), 25
                 )
-        return v_slices, i_slices, ramp_times
+        return v_slices * vu, i_slices * iu, ramp_times
 
     def __find_isat_vf(self, vslice, islice):
         arg_vf = np.argmin(np.abs(islice))
