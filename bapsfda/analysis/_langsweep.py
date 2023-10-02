@@ -39,7 +39,7 @@ class LangmuirSweep:
             raise Exception("Sweep t_ parameters must be in milliseconds.")
         self._sweep_params = {
             "t_start": t_start,
-            "t_ramp_up": t_ramp,
+            "t_ramp_up": t_ramp * ramp_sym,
             "t_period": t_period,
             "nsweeps": nsweeps,
         }
