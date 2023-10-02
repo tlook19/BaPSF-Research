@@ -72,6 +72,7 @@ class DaqArray(SignalArray):
     def run_props(self) -> dict:
         return self._run_props
 
+    @property
     def shape(self) -> tuple:
         return self._signal_array.shape
 
