@@ -107,8 +107,8 @@ class LangmuirSweep:
         for i in range(vsweep_filt.shape[0]):
             for j in range(self._sweep_params["nsweeps"]):
                 k = t_start_ind + j * t_period_ind
-                vsort = vsweep_filt[i, j, k : k + t_ramp_ind]
-                isort = isweep_filt[i, j, k : k + t_ramp_ind]
+                vsort = vsweep_filt[i, k : k + t_ramp_ind]
+                isort = isweep_filt[i, k : k + t_ramp_ind]
                 sort_ind = np.argsort(vsort)
                 v_slices[i, j] = sav_smooth(
                     np.take_along_axis(vsort, sort_ind, axis=0), 25
