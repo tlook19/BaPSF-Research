@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from ._datastructs import CurrentDaqArray, VoltageDaqArray
 from ._datafuncs import butt_low, sav_smooth
 from astropy import units as u
@@ -120,6 +121,13 @@ class LangmuirSweep:
                 )
         return v_slices * vu, i_slices * iu, ramp_times
 
+    def _plot_sweep_debug(self, vslice, islice, i2, arg_vf, arg_vp):
+        plt.plot(vslice, islice)
+        plt.plot(vslice, i2)
+        plt.axvline(vslice[arg_vf], color="k")
+        plt.axvline(vslice[arg_vp], color="k")
+        plt.show()
+
     def _find_isat_vf(self, vslice, islice):
         arg_vf = islice.shape[0] - np.argmin(np.abs(islice[::-1]))
         vf = vslice[arg_vf]
@@ -147,6 +155,7 @@ class LangmuirSweep:
             print(f"arg_vf = {arg_vf}")
             print(f"arg_vp = {arg_vp}")
             print(f"i = {i}, j = {j}")
+            self._plot_sweep_debug(vslice, islice, ivgrad, arg_vf, arg_vp)
             raise Exception("Algorithim thinks plasma potential is less then vf.")
         vp = vslice[arg_vp]
         a1, b1 = curve_fit(  # trying gaussian fit of vp to compare to max
