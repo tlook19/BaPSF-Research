@@ -96,7 +96,7 @@ class LangmuirSweep:
         )
         ramp_times = (
             np.arange(self._sweep_params["nsweeps"]) * self._sweep_params["t_period"]
-            + self._sweep_params["t_start_ind"]
+            + self._sweep_params["t_start"]
         )
         v_slices = np.empty(
             (vsweep_filt.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
