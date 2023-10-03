@@ -79,7 +79,12 @@ class LangmuirSweep:
         vsweep_filt = butt_low(
             vsweep.signal_array, 5e5, vsweep.run_props["sample_freq"].value, order=4
         )
-        isweep_filt = isweep_filt - np.average(isweep_filt[:, -2000:-1], axis=-1)
+        isweep_filt = np.moveaxis(
+            np.moveaxis(isweep_filt, 1, 0)
+            - np.average(isweep_filt[:, -2000:-1], axis=-1),
+            0,
+            1,
+        )
         t_start_ind = int(
             self._sweep_params["t_start"].to(u.s) / isweep.run_props["dt"]
         )
