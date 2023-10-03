@@ -89,11 +89,13 @@ class LangmuirSweep:
             1,
         )
         t_start_ind = int(
-            self._sweep_params["t_start"].to(u.s) / isweep.run_props["dt"]
-        )
+            (self._sweep_params["t_start"] + (1 * u.us)).to(u.s)
+            / isweep.run_props["dt"]
+        )  # delay start by 1 us
         t_ramp_ind = int(
-            self._sweep_params["t_ramp_up"].to(u.s) / isweep.run_props["dt"]
-        )
+            (self._sweep_params["t_ramp_up"] - (1 * u.us)).to(u.s)
+            / isweep.run_props["dt"]
+        )  # shave 1 us off the ramp to compensate for the delay
         t_period_ind = int(
             self._sweep_params["t_period"].to(u.s) / isweep.run_props["dt"]
         )
