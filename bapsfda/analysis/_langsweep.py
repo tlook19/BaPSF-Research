@@ -199,11 +199,11 @@ class LangmuirSweep:
         v_units = u.V
         i_units = u.A
         if type(v_slices) == Quantity:
-            v_slices = v_slices.value
             v_units = v_slices.unit
+            v_slices = v_slices.value
         if type(i_slices) == Quantity:
-            i_slices = i_slices.value
             i_units = i_slices.unit
+            i_slices = i_slices.value
         pp_units = np.array([i_units, v_units, v_units, v_units])
         plasma_params = np.empty((v_slices.shape[0], v_slices.shape[1], 4))
         for i in range(v_slices.shape[0]):
