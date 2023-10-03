@@ -225,23 +225,25 @@ class LangmuirSweep:
         for i in range(v_slices.shape[0]):
             for j in range(v_slices.shape[1]):
                 (
-                    plasma_params[i, j, 0],
-                    plasma_params[i, j, 1],
+                    isat,
+                    vf,
                     isat_std,
                     iline,
                     arg_vf,
                     isat_pcov,
                 ) = self._find_isat_vf(v_slices[i, j], i_slices[i, j])
+                plasma_params[i, j, 0] = isat * -1
+                plasma_params[i, j, 1] = vf
                 plasma_params[i, j, 2], arg_vp, te1 = self._find_plasma_potential(
                     v_slices[i, j], i_slices[i, j], arg_vf, i, j
                 )
                 te2 = self._find_te(
                     v_slices[i, j], i_slices[i, j], iline, arg_vf, arg_vp
                 )
-                plasma_params[i, j, 3] = (te1 + te2) / 2
+                plasma_params[i, j, 3] = te1
                 if abs(te1 - te2) / te1 > 0.1:
                     print(
-                        f"greater then 10% difference in Te methods, Te1: {te1}, Te2: {te2}, relative error = {abs(te1 - te2) / te1}, shot: {i}, sweep: {j}"
+                        f"greater then 10% difference in Te methods, TeG: {te1}, TeE: {te2}, relative error = {abs(te1 - te2) / te1}, shot: {i}, sweep: {j}"
                     )
                 if isat_std / plasma_params[i, j, 0] > 0.1:
                     print(
