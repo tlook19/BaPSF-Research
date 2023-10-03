@@ -121,7 +121,7 @@ class LangmuirSweep:
         return v_slices * vu, i_slices * iu, ramp_times
 
     def _find_isat_vf(self, vslice, islice):
-        arg_vf = islice.shape - np.argmin(np.abs(islice[::-1]))
+        arg_vf = islice.shape[0] - np.argmin(np.abs(islice[::-1]))
         vf = vslice[arg_vf]
         isat = np.average(islice[: arg_vf // 2])
         isat_std = np.std(islice[: arg_vf // 2])
