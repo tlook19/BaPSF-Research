@@ -196,7 +196,15 @@ class LangmuirSweep:
 
         Returns:
         """
-
+        v_units = u.V
+        i_units = u.A
+        if type(v_slices) == Quantity:
+            v_slices = v_slices.value
+            v_units = v_slices.unit
+        if type(i_slices) == Quantity:
+            i_slices = i_slices.value
+            i_units = i_slices.unit
+        pp_units = np.array([i_units, v_units, v_units, v_units])
         plasma_params = np.empty((v_slices.shape[0], v_slices.shape[1], 4))
         for i in range(v_slices.shape[0]):
             for j in range(v_slices.shape[1]):
@@ -227,7 +235,7 @@ class LangmuirSweep:
                     print(
                         f"isat_pcov error greater then isat_std, isat: {plasma_params[i, j, 0]}, std: {isat_std}, pcov: {np.sqrt(np.diag(isat_pcov))}, shot: {i}, sweep: {j}"
                     )
-        return plasma_params
+        return plasma_params * pp_units
 
     def calculate_density(
         self, plasma_params: np.ndarray, probe_area: Quantity, ion_mass_factor: float
