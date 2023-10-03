@@ -73,14 +73,14 @@ class LangmuirSweep:
             )
         iu = isweep.signal_array.unit
         vu = vsweep.signal_array.unit
-        isweep_filt = isweep.signal_array.value
-        vsweep_filt = vsweep.signal_array.value
-        # isweep_filt = butt_low(
-        #     isweep.signal_array, 5e5, isweep.run_props["sample_freq"].value, order=4
-        # )
-        # vsweep_filt = butt_low(
-        #     vsweep.signal_array, 5e5, vsweep.run_props["sample_freq"].value, order=4
-        # )
+        # isweep_filt = isweep.signal_array.value
+        # vsweep_filt = vsweep.signal_array.value
+        isweep_filt = butt_low(
+            isweep.signal_array, 5e5, isweep.run_props["sample_freq"].value, order=4
+        )
+        vsweep_filt = butt_low(
+            vsweep.signal_array, 5e5, vsweep.run_props["sample_freq"].value, order=4
+        )
         isweep_filt = np.moveaxis(
             np.moveaxis(isweep_filt, 1, 0)
             - np.average(isweep_filt[:, -2000:-1], axis=-1),
@@ -121,7 +121,7 @@ class LangmuirSweep:
         return v_slices * vu, i_slices * iu, ramp_times
 
     def _find_isat_vf(self, vslice, islice):
-        arg_vf = np.argmin(np.abs(islice))
+        arg_vf = islice.shape - np.argmin(np.abs(islice[::-1]))
         vf = vslice[arg_vf]
         isat = np.average(islice[: arg_vf // 2])
         isat_std = np.std(islice[: arg_vf // 2])
