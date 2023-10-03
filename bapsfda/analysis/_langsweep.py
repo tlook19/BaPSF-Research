@@ -247,7 +247,7 @@ class LangmuirSweep:
                     print(
                         f"greater then 10% std in isat, isat: {plasma_params[i, j, 0]}, std: {isat_std}, relative error = {isat_std / plasma_params[i, j, 0]}, shot: {i}, sweep: {j}"
                     )
-                if np.sqrt(np.diag(isat_pcov)) > isat_std:
+                if np.any(np.sqrt(np.diag(isat_pcov)) > isat_std):
                     print(
                         f"isat_pcov error greater then isat_std, isat: {plasma_params[i, j, 0]}, std: {isat_std}, pcov: {np.sqrt(np.diag(isat_pcov))}, shot: {i}, sweep: {j}"
                     )
