@@ -172,15 +172,6 @@ class LangmuirSweep:
             islice (bool): _description_
         """
         ecurr = islice - iline
-        print(f"ecurr.shape = {ecurr.shape}")
-        print(f"arg_vf = {arg_vf}")
-        print(f"arg_vp = {arg_vp}")
-        print(
-            f"vslice[arg_vf // 2 : (arg_vp + arg_vf) // 2].shape = {vslice[arg_vf // 2 : (arg_vp + arg_vf) // 2].shape}"
-        )
-        print(
-            f"ecurr[arg_vf // 2 : (arg_vp + arg_vf) // 2].shape = {ecurr[arg_vf // 2 : (arg_vp + arg_vf) // 2].shape}"
-        )
         a, b = curve_fit(
             lambda t, amp, temp, offset: amp * np.exp((t + offset) / temp),
             vslice[arg_vf // 2 : (arg_vp + arg_vf) // 2],
