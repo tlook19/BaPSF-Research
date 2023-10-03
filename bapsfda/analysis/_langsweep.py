@@ -120,7 +120,7 @@ class LangmuirSweep:
                 )
         return v_slices * vu, i_slices * iu, ramp_times
 
-    def __find_isat_vf(self, vslice, islice):
+    def _find_isat_vf(self, vslice, islice):
         arg_vf = np.argmin(np.abs(islice))
         vf = vslice[arg_vf]
         isat = np.average(islice[: arg_vf // 2])
@@ -131,7 +131,7 @@ class LangmuirSweep:
         iline = a[0] * vslice + a[1]
         return isat, vf, isat_std, iline, arg_vf, b
 
-    def __find_plasma_potential(self, vslice, islice):
+    def _find_plasma_potential(self, vslice, islice):
         """Find the plasma potential for a single sweep via the first derivative method. Report Te estimate from super-gaussian fit.
 
         Args:
@@ -148,18 +148,18 @@ class LangmuirSweep:
             lambda t, amp, mean, std: amp * np.exp(-((t - mean) ** 2) / (2 * std**2)),
             vslice,
             ivgrad,
-            p0=[ivgrad[vp], vp, 1],
+            p0=[ivgrad[arg_vp], vp, 1],
         )
         print(vp, a1[1], vp - a1[1])
         a2, b2 = curve_fit(
             lambda t, amp, mean, temp: amp * np.exp(-abs(t - mean) / (2 * temp)),
             vslice,
             ivgrad,
-            p0=[ivgrad[vp], vp, 1],
+            p0=[ivgrad[arg_vp], vp, 1],
         )
         return vp, arg_vp, a2[2]
 
-    def __find_te(self, vslice, islice, iline, arg_vf, arg_vp):
+    def _find_te(self, vslice, islice, iline, arg_vf, arg_vp):
         """Find Te by exponential fit to IV curve.
 
         Args:
@@ -215,11 +215,11 @@ class LangmuirSweep:
                     iline,
                     arg_vf,
                     isat_pcov,
-                ) = self.__find_isat_vf(v_slices[i, j], i_slices[i, j])
-                plasma_params[i, j, 2], arg_vp, te1 = self.__find_plasma_potential(
+                ) = self._find_isat_vf(v_slices[i, j], i_slices[i, j])
+                plasma_params[i, j, 2], arg_vp, te1 = self._find_plasma_potential(
                     v_slices[i, j], i_slices[i, j]
                 )
-                te2 = self.__find_te(
+                te2 = self._find_te(
                     v_slices[i, j], i_slices[i, j], iline, arg_vf, arg_vp
                 )
                 plasma_params[i, j, 3] = (te1 + te2) / 2
