@@ -131,7 +131,7 @@ class LangmuirSweep:
         iline = a[0] * vslice + a[1]
         return isat, vf, isat_std, iline, arg_vf, b
 
-    def _find_plasma_potential(self, vslice, islice):
+    def _find_plasma_potential(self, vslice, islice, arg_vf, i, j):
         """Find the plasma potential for a single sweep via the first derivative method. Report Te estimate from super-gaussian fit.
 
         Args:
@@ -143,6 +143,11 @@ class LangmuirSweep:
         """
         ivgrad = np.gradient(islice, vslice)
         arg_vp = np.argmax(ivgrad)
+        if arg_vf > arg_vp:
+            print(f"arg_vf = {arg_vf}")
+            print(f"arg_vp = {arg_vp}")
+            print(f"i = {i}, j = {j}")
+            raise Exception("Algorithim thinks plasma potential is less then vf.")
         vp = vslice[arg_vp]
         a1, b1 = curve_fit(  # trying gaussian fit of vp to compare to max
             lambda t, amp, mean, std: amp * np.exp(-((t - mean) ** 2) / (2 * std**2)),
@@ -226,7 +231,7 @@ class LangmuirSweep:
                     isat_pcov,
                 ) = self._find_isat_vf(v_slices[i, j], i_slices[i, j])
                 plasma_params[i, j, 2], arg_vp, te1 = self._find_plasma_potential(
-                    v_slices[i, j], i_slices[i, j]
+                    v_slices[i, j], i_slices[i, j], arg_vf, i, j
                 )
                 te2 = self._find_te(
                     v_slices[i, j], i_slices[i, j], iline, arg_vf, arg_vp
