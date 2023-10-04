@@ -172,7 +172,7 @@ class LangmuirSweep:
             ivgrad,
             p0=[ivgrad[arg_vp], vp, 1],
         )
-        return vp, arg_vp, a2[2]
+        return vp, a2[2]
 
     # def _find_te(self, vslice, islice, iline, arg_vf, arg_vp):
     #     """Find Te by exponential fit to IV curve.
