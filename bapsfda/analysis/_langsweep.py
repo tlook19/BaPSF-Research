@@ -229,7 +229,7 @@ class LangmuirSweep:
                 plasma_params[i, j, 0] = isat * -1
                 plasma_params[i, j, 1] = vf
                 plasma_params[i, j, 2], te1 = self._find_plasma_potential(
-                    v_slices[i, j, t_pre_ind:], i_slices[i, j, t_pre_ind:]
+                    v_slices[i, j, 2 * t_pre_ind :], i_slices[i, j, 2 * t_pre_ind :]
                 )
                 # te2 = self._find_te(
                 #     v_slices[i, j], i_slices[i, j], iline, arg_vf, arg_vp
