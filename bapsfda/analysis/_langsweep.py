@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from ._datastructs import CurrentDaqArray, VoltageDaqArray
 from ._datafuncs import butt_low, sav_smooth
+from ._fitfuncs import supergaussian, expfit
 from astropy import units as u
 from astropy.units.quantity import Quantity
 from astropy.constants import e, k_B, m_p
@@ -160,12 +161,12 @@ class LangmuirSweep:
         #     raise Exception("Algorithim thinks plasma potential is less then vf.")
         vp = vslice[arg_vp]
         a1, b1 = curve_fit(  # trying gaussian fit of vp to compare to max
-            lambda t, amp, mean, std: amp * np.exp(-((t - mean) ** 2) / (2 * std**2)),
+            supergaussian,
             vslice,
             ivgrad,
             p0=[ivgrad[arg_vp], vp, 1],
         )
-        print(vp, a1[1], vp - a1[1])
+
         a2, b2 = curve_fit(
             lambda t, amp, mean, temp: amp * np.exp(-abs(t - mean) / (2 * temp)),
             vslice,
