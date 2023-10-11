@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from ._datastructs import CurrentDaqArray, VoltageDaqArray
-from ._datafuncs import butt_low, sav_smooth
-from ._fitfuncs import supergaussian, expfit
+from ..processing._datastructs import CurrentDaqArray, VoltageDaqArray
+from ..processing._datafuncs import butt_low, sav_smooth
+from ..processing._fitfuncs import supergaussian, expfit
 from astropy import units as u
 from astropy.units.quantity import Quantity
 from astropy.constants import e, k_B, m_p

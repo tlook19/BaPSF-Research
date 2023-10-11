@@ -1,7 +1,6 @@
-import numpy as np
+__all__ = ["supergaussian", "expfit"]
 
-# Supergaussian of order p=1/2 for temp fitting
-lambda t, amp, mean, temp: amp * np.exp(-abs(t - mean) / (2 * temp))
+import numpy as np
 
 
 def supergaussian(t, amp, mean, std, p=1):

@@ -1,6 +1,6 @@
 import numpy as np
 from pycine.raw import read_frames
-from ._datafuncs import extract_flucts, sav_smooth
+from ..processing._datafuncs import extract_flucts, sav_smooth
 
 
 class FastCam:
