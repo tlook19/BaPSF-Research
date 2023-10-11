@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "bapsfda"
+version = "0.0.1a0"
+description = "A Python data analysis package for users of the Large Plasma Device (LAPD) at UCLA's Basic Plasma Science Facility (BaPSF)"
+authors = ["Thomas R. Look <tlook@physics.ucla.edu>"]
+license = "TBD"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+numpy = "^1.26.0"
+scipy = "^1.11.3"
+matplotlib = "^3.8.0"
+astropy = "^5.3.4"
+plasmapy = "^2023.5.1"
+pycine = "^0.3.2"
+scaleogram = "^0.9.5"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
