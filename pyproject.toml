@@ -7,17 +7,25 @@ license = "TBD"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
-numpy = "^1.26.0"
+python = ">=3.11, <3.13"
+numpy = "^1.25.0"
 scipy = "^1.11.3"
 matplotlib = "^3.8.0"
 astropy = "^5.3.4"
 plasmapy = "^2023.5.1"
 pycine = "^0.3.2"
 scaleogram = "^0.9.5"
+conda-lock = "^2.3.0"
+bapsflib = {git = "https://github.com/BaPSF/bapsflib.git", tag = "v2.0.0b2"}
 
-[tool.poetry.group.dev.dependencies]
+[tool.poetry.group.test.dependencies]
 pytest = "^7.4.2"
+pytest-cov = "^4.1.0"
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
 
 [build-system]
 requires = ["poetry-core"]
