@@ -41,19 +41,24 @@ class SignalArray(ABC):
 
 class DataRun:
     """
-    Class for an LAPD data run with SiS Crate Digitizer DAQ system.
-    The LAPD data run is a collection of signal arrays where the each "Board" has a base ADC clock frequency, number of samples averaged, and number of samples per shot.
-    Each board has 8 channels the each digitize a voltage signal. Each signal may have some gain or resistance associated with it.
-    A typical run will take a number of shots at each probe position, then move to the next probe position,
-    starting from the top left (ymax, xmin) and scanning from left to right, then top to bottom.
+    Container for LAPD Data Runs.
 
-    A drive is a collection of channels (which may be on different boards) that are moved together.
+    The LAPD data run is a collection of signal arrays where the each "Board" has a base
+    ADC clock frequency, number of samples averaged, and number of samples per shot.
+    Each board has 8 channels the each digitize a voltage signal. Each signal may have
+    some gain or resistance associated with it. A typical run will take a number of
+    shots at each probe position, then move to the next probe position, starting from
+    the top left (ymax, xmin) and scanning from left to right, then top to bottom. A
+    drive is a collection of channels (which may be on different boards) that are moved
+    together.
 
     Run Properties that stay for the entire run are:
         - shots_total: total number of shots in the run
-        - trigger_delay: Delay between LAPD 1kA discharge current trigger and the DAQ trigger in seconds(usually 0)
+        - trigger_delay: Delay between LAPD 1kA discharge current trigger and the DAQ
+        trigger in seconds(usually 0)
 
-    Drive Props that are the same for the entire datarun are nx * ny * nz * shots_per_pos should equal shots_total: (assumes grad)
+    Drive Props that are the same for the entire datarun are
+    nx * ny * nz * shots_per_pos should equal shots_total:
         - shots_per_pos: number of shots at each probe position
         - ny: number of probe positions in the y direction
         - nx: number of probe positions in the x direction
@@ -68,7 +73,8 @@ class DataRun:
         - gain: gain of the measurement circuit to be divided out
         - resistance(optional): resistance in Ohms of the current sense resistor
 
-    From a composition standpoint a datarun is a collection of boards, and each board is a collection of channels.
+    From a composition standpoint a datarun is a collection of boards, and each board is
+    a collection of channels.
 
     In the future, it may be relevent that an experiment is a collection of data runs.
 
@@ -80,10 +86,13 @@ class DataRun:
 class DaqArray(SignalArray):
     """
     Class for signal arrays from the LAPD DAQ SIS Crate system.
-    The LAPD DAQ generates a 2D array of signals with dimensions (ny * nx * nshots, nt) where nt is the number of time steps (samples) in the signal.
-    The DAQ run properties are the ADC clock frequency, the number of samples averaged, the number of shots per position, and the number of probe positions in the x and y directions.
-    The LAPD DAQ loop acquires nshots signals at each probe position, then moves to the next probe position, starting from the top left (ymax, xmin)
-    and moving to the bottom right (ymin, xmax) stepping along x first, then y.
+    The LAPD DAQ generates a 2D array of signals with dimensions (ny * nx * nshots, nt)
+    where nt is the number of time steps (samples) in the signal. The DAQ run properties
+    are the ADC clock frequency, the number of samples averaged, the number of shots per
+    position, and the number of probe positions in the x and y directions. The LAPD DAQ
+    loop acquires nshots signals at each probe position, then moves to the next probe
+    position, starting from the top left (ymax, xmin) and moving to the bottom right
+    (ymin, xmax) stepping along x first, then y.
 
     This class may need to be adjusted for the XYZ drive, or if a new DAQ system is used.
     Args:
