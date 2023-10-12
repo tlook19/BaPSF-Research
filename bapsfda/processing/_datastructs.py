@@ -8,13 +8,13 @@ from typing import Optional
 from dataclasses import dataclass
 
 
-@dataclass
+@dataclass(frozen=True)
 class RunProperties:
     shots_total: int
     trigger_delay: float = 0.0
 
 
-@dataclass
+@dataclass(frozen=True)
 class DriveProperties:
     shots_per_pos: int
     nx: int = 1
@@ -22,14 +22,14 @@ class DriveProperties:
     nz: int = 1
 
 
-@dataclass
+@dataclass(frozen=True)
 class BoardProperties:
     samples_per_shot: int
     adc_clk: float = 100e6
     sample_avg: int = 1
 
 
-@dataclass
+@dataclass(frozen=True)
 class ChannelProperties:
     gain: float = 1
     resistance: Optional[float] = None
@@ -93,13 +93,10 @@ class DaqArray(SignalArray):
     def __init__(
         self,
         signal: np.ndarray,
-        adc_clk: float = 100e6,
-        sample_avg: int = 1,
-        ny: int = 1,
-        nx: int = 1,
-        nshots: int = 1,
-        gain: float = 1,
-        resistance: Optional[float] = None,
+        run_props: RunProperties,
+        board_props: BoardProperties,
+        channel_props: ChannelProperties,
+        drive_props: Optional[DriveProperties] = None,
     ) -> None:
         """Initialize a DAQ array with a raw signal array and the DAQ run properties.
 
@@ -113,19 +110,25 @@ class DaqArray(SignalArray):
             gain (float): Gain of the measurement circuit to be divided out
             resistance (float): Resistance in ohms of the current sense resistor
         """
-        self._signal_array = signal / gain
+        self._signal_array = signal / channel_props.gain
         self._units = u.V
-        if resistance is not None:
-            self._signal_array = self._signal_array / resistance
+        if channel_props.resistance is not None:
+            self._signal_array = self._signal_array / channel_props.resistance
             self._units = u.A
-        self._sample_freq = adc_clk / sample_avg * u.Hz
-        self._ny = ny
-        self._nx = nx
-        self._nshots = nshots
-        self._dt = (self._sample_freq**-1).to(u.s)
-        self._nt = self._signal_array.shape[-1]
-        self._units = u.V
-        self._time_array = (np.arange(self._nt) * self._dt).to(u.s)
+        self._sample_freq = board_props.adc_clk / board_props.sample_avg
+        self._nt = board_props.samples_per_shot
+        self._dt = 1.0 / self._sample_freq
+        self._time_array = np.arange(self._nt) * self._dt + run_props.trigger_delay
+        if drive_props is None:
+            self._nx = 1
+            self._ny = 1
+            self._nz = 1
+            self._nshots = run_props.shots_total
+        else:
+            self._nx = drive_props.nx
+            self._ny = drive_props.ny
+            self._nz = drive_props.nz
+            self._nshots = drive_props.shots_per_pos
 
     @property
     def signal_array(self) -> np.ndarray:
