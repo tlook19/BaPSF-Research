@@ -17,6 +17,7 @@ pycine = "^0.3.2"
 scaleogram = "^0.9.5"
 conda-lock = "^2.3.0"
 bapsflib = {git = "https://github.com/BaPSF/bapsflib.git", tag = "v2.0.0b2"}
+dask = "^2023.9.3"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.2"
