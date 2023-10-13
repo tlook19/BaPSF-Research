@@ -9,8 +9,8 @@ __all__ = [
 ]
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import butter, sosfiltfilt, savgol_filter
-from scipy.optimize import curve_fit
+from scipy.signal import butter, sosfiltfilt, savgol_filter # type: ignore
+from scipy.optimize import curve_fit # type: ignore
 
 
 def abs2(x):

@@ -9,6 +9,7 @@ dependencies:
   - poetry>=1.6
   - pytest
   - black>=23.1
+  - mypy
 platforms:
   - linux-64
   - osx-64

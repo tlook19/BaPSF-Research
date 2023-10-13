@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import hilbert
-import pandas as pd
-from scipy import constants as const
+from scipy.signal import hilbert # type: ignore
+import pandas as pd # type: ignore
+from scipy import constants as const # type: ignore
 
 e = const.elementary_charge
 m_e = const.electron_mass

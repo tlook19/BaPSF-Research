@@ -13,12 +13,12 @@
 version: 1
 metadata:
   content_hash:
-    linux-64: 21f7f98da580521370e5befa346a08309ca697a6089231b238c3f52fb53b4361
-    osx-arm64: f632778994def54e4ff355b400c4178eefb7a6802a6a2c1fe073c04968b3c145
-    osx-64: 29f8645cfc72e1d9fa14dd9255e58f1e9c3d6e5e3741c4e7414673a342720557
-    win-64: 167f5e07a1a2d55dc65446caae7de387a804e92d91965ad46333145f2e3ade09
-    linux-aarch64: 617309567cc645b002a4849b67143dca07a5428190e53d3654153d8ef309c15b
-    linux-ppc64le: a8194afdcba02e89dbbcc035060b6adf4a950cabfc7e67e68ae6c876b93f30a0
+    linux-64: 84f4cfb6696cbfb92e5ee3f9838071d8f9ab4dfd84afc9154281b2ff83a8005d
+    osx-arm64: 65fa3f2983dd8ccbe29cbb2c26edb2154560daeb1c75cb869122d56d2c972658
+    osx-64: 5f023484968ee5ffce2639ef3b98799f7cf4f3e5c8f24bbd4b8cf512f3018f50
+    win-64: fb388dcba78fe03b2a0db35f14ede467fe40a9ca39fd71cc2bc930e0ff094683
+    linux-aarch64: 22c146ab13acd880c06577edd19fbb4b960561d42ff0cb19e4f8c63a48941562
+    linux-ppc64le: e6215c8e973920d40082cb34e144c4eb283f9c3a7330d3dd3465e986363e3614
   channels:
   - url: conda-forge
     used_env_vars: []
@@ -1018,6 +1018,20 @@ package:
     sha256: d921cd5c0845be2e5e9f4dfe8e47452400955fb5e1b7262a72344b8edda79b70
   category: main
   optional: false
+- name: psutil
+  version: 5.9.5
+  manager: conda
+  platform: linux-64
+  dependencies:
+    libgcc-ng: '>=12'
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+  url: https://conda.anaconda.org/conda-forge/linux-64/psutil-5.9.5-py311h459d7ec_1.conda
+  hash:
+    md5: 490d7fa8675afd1aa6f1b2332d156a45
+    sha256: e92d2120fc4b98fe838b3d52d4907fae97808bdd504fb84aa33aea8c4be7bc61
+  category: main
+  optional: false
 - name: ptyprocess
   version: 0.7.0
   manager: conda
@@ -1329,6 +1343,23 @@ package:
   hash:
     md5: c915e6866cde479b486f1f1fc1ca325b
     sha256: 22d3f45a7588889058b8f58a6a3129581702cd72ace9fc4e88debcb075ee8c49
+  category: main
+  optional: false
+- name: mypy
+  version: 1.6.0
+  manager: conda
+  platform: linux-64
+  dependencies:
+    libgcc-ng: '>=12'
+    mypy_extensions: '>=1.0.0'
+    psutil: '>=4.0'
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+    typing_extensions: '>=4.1.0'
+  url: https://conda.anaconda.org/conda-forge/linux-64/mypy-1.6.0-py311h459d7ec_0.conda
+  hash:
+    md5: bf8a68aae89d5ff65e9006f586fefffe
+    sha256: ee0b1f7fb0aa0807ea14cd5ba96a2ec7bc371d2f1e225acd462acd37a4e3cd4e
   category: main
   optional: false
 - name: pexpect
@@ -2844,6 +2875,20 @@ package:
     sha256: d921cd5c0845be2e5e9f4dfe8e47452400955fb5e1b7262a72344b8edda79b70
   category: main
   optional: false
+- name: psutil
+  version: 5.9.5
+  manager: conda
+  platform: linux-aarch64
+  dependencies:
+    libgcc-ng: '>=12'
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+  url: https://conda.anaconda.org/conda-forge/linux-aarch64/psutil-5.9.5-py311hcd402e7_1.conda
+  hash:
+    md5: ed330c5e852e3b60aeccd3098529a2ed
+    sha256: 6666f812e19a5651e53baa2e119c1d3b673f7055531c286da092eff19711d313
+  category: main
+  optional: false
 - name: ptyprocess
   version: 0.7.0
   manager: conda
@@ -3155,6 +3200,23 @@ package:
   hash:
     md5: 5cbff401dbed8839d30cc7851cc85c6a
     sha256: c9b38427a9dca052749ef7db37f1def5c496e5cb9a557dbf91085a05cb3625cd
+  category: main
+  optional: false
+- name: mypy
+  version: 1.6.0
+  manager: conda
+  platform: linux-aarch64
+  dependencies:
+    libgcc-ng: '>=12'
+    mypy_extensions: '>=1.0.0'
+    psutil: '>=4.0'
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+    typing_extensions: '>=4.1.0'
+  url: https://conda.anaconda.org/conda-forge/linux-aarch64/mypy-1.6.0-py311hcd402e7_0.conda
+  hash:
+    md5: 7d9d49def5e9f83c43cb9d9ecffb1019
+    sha256: bdd9ed8f2e64d21c0d6a28fa7287a223bbd53328f8de684df42b3985fe2acacb
   category: main
   optional: false
 - name: pexpect
@@ -4684,6 +4746,20 @@ package:
     sha256: d921cd5c0845be2e5e9f4dfe8e47452400955fb5e1b7262a72344b8edda79b70
   category: main
   optional: false
+- name: psutil
+  version: 5.9.5
+  manager: conda
+  platform: linux-ppc64le
+  dependencies:
+    libgcc-ng: '>=12'
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+  url: https://conda.anaconda.org/conda-forge/linux-ppc64le/psutil-5.9.5-py311hd26027c_1.conda
+  hash:
+    md5: f1df5ee23de6364fe550ebb911ac936d
+    sha256: 713484e4eac8379c895b6e0e51dc07212df0183017cb4d23909362c24aa250e8
+  category: main
+  optional: false
 - name: ptyprocess
   version: 0.7.0
   manager: conda
@@ -4995,6 +5071,23 @@ package:
   hash:
     md5: 3782b8f391089d371af1a071728505bb
     sha256: 2988b617bfbadaa340a5cdb16404f21b68a93fb7172203892650ba01ea0feba0
+  category: main
+  optional: false
+- name: mypy
+  version: 1.6.0
+  manager: conda
+  platform: linux-ppc64le
+  dependencies:
+    libgcc-ng: '>=12'
+    mypy_extensions: '>=1.0.0'
+    psutil: '>=4.0'
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+    typing_extensions: '>=4.1.0'
+  url: https://conda.anaconda.org/conda-forge/linux-ppc64le/mypy-1.6.0-py311hd26027c_0.conda
+  hash:
+    md5: b06e35ea43a1563b1e63ccb57acb1386
+    sha256: f08f8874160cf252331c565608c32bc2f82eafbd9f9efcd2686a59d666898f72
   category: main
   optional: false
 - name: pexpect
@@ -6307,6 +6400,19 @@ package:
     sha256: d921cd5c0845be2e5e9f4dfe8e47452400955fb5e1b7262a72344b8edda79b70
   category: main
   optional: false
+- name: psutil
+  version: 5.9.5
+  manager: conda
+  platform: osx-64
+  dependencies:
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+  url: https://conda.anaconda.org/conda-forge/osx-64/psutil-5.9.5-py311h2725bcf_1.conda
+  hash:
+    md5: 16221cd0488a32152a6b3f1a301ccf19
+    sha256: 2eee900e0e5a103cff0159cdd81d401b67ccfb919be6cd868fc34c22dab981f1
+  category: main
+  optional: false
 - name: ptyprocess
   version: 0.7.0
   manager: conda
@@ -6602,6 +6708,22 @@ package:
   hash:
     md5: 1fc7331d1784ea9adfb3deff8fa87a41
     sha256: b8a2141da97ec04598b1fc729cef85d0d91d5ac56e470f6ef98987e8fe40bf68
+  category: main
+  optional: false
+- name: mypy
+  version: 1.6.0
+  manager: conda
+  platform: osx-64
+  dependencies:
+    mypy_extensions: '>=1.0.0'
+    psutil: '>=4.0'
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+    typing_extensions: '>=4.1.0'
+  url: https://conda.anaconda.org/conda-forge/osx-64/mypy-1.6.0-py311he705e18_0.conda
+  hash:
+    md5: baf3eadd3c9d777b0c8aa385e457278e
+    sha256: 421c3203f223e5399ab69c910e433ef0409ca4cc748794b9514021f262c18a59
   category: main
   optional: false
 - name: pexpect
@@ -7930,6 +8052,19 @@ package:
     sha256: d921cd5c0845be2e5e9f4dfe8e47452400955fb5e1b7262a72344b8edda79b70
   category: main
   optional: false
+- name: psutil
+  version: 5.9.5
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+  url: https://conda.anaconda.org/conda-forge/osx-arm64/psutil-5.9.5-py311heffc1b2_1.conda
+  hash:
+    md5: a40123b40642b8b08b3830a3f6bc7fd9
+    sha256: a12a525d3bcaed04e0885b2bd00f4f626c80c19d7c0ae8bb7cf7121aefb39e52
+  category: main
+  optional: false
 - name: ptyprocess
   version: 0.7.0
   manager: conda
@@ -8225,6 +8360,22 @@ package:
   hash:
     md5: c44ae6b61c419cb63d88144abeb0f275
     sha256: 1a07ce4eacfa61d66973b14f9d2c367b56c66aece37ff7e9af4758b685d479a3
+  category: main
+  optional: false
+- name: mypy
+  version: 1.6.0
+  manager: conda
+  platform: osx-arm64
+  dependencies:
+    mypy_extensions: '>=1.0.0'
+    psutil: '>=4.0'
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+    typing_extensions: '>=4.1.0'
+  url: https://conda.anaconda.org/conda-forge/osx-arm64/mypy-1.6.0-py311h05b510d_0.conda
+  hash:
+    md5: c102e4d8a1d5e3b3ccadcc63c5c5e5a9
+    sha256: c0583432d103b65fdc5c4ad23069fdc2f5fe704df1d0aa9096a590185fe26b6b
   category: main
   optional: false
 - name: pexpect
@@ -9543,6 +9694,22 @@ package:
     sha256: d921cd5c0845be2e5e9f4dfe8e47452400955fb5e1b7262a72344b8edda79b70
   category: main
   optional: false
+- name: psutil
+  version: 5.9.5
+  manager: conda
+  platform: win-64
+  dependencies:
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.2,<15'
+    vc14_runtime: '>=14.29.30139'
+  url: https://conda.anaconda.org/conda-forge/win-64/psutil-5.9.5-py311ha68e1ae_1.conda
+  hash:
+    md5: f64b2d9577e753fea9662dae11339ac2
+    sha256: e5c09eee9902e0c56d89f88210009b34d819d241ac5b7dde38266324a85fde51
+  category: main
+  optional: false
 - name: ptyprocess
   version: 0.7.0
   manager: conda
@@ -9865,6 +10032,25 @@ package:
   hash:
     md5: 40438a9eaf94f7412d3c00bfe01afa89
     sha256: 4e62ff223da313f8bd6e9744651f1aef91a4232ece6601cbbe194b36a1deeb5c
+  category: main
+  optional: false
+- name: mypy
+  version: 1.6.0
+  manager: conda
+  platform: win-64
+  dependencies:
+    mypy_extensions: '>=1.0.0'
+    psutil: '>=4.0'
+    python: '>=3.11,<3.12.0a0'
+    python_abi: 3.11.*
+    typing_extensions: '>=4.1.0'
+    ucrt: '>=10.0.20348.0'
+    vc: '>=14.2,<15'
+    vc14_runtime: '>=14.29.30139'
+  url: https://conda.anaconda.org/conda-forge/win-64/mypy-1.6.0-py311ha68e1ae_0.conda
+  hash:
+    md5: f114537bbe2824a04f8f4b71423cb9e3
+    sha256: fc71e32953f63c4d8879aa95fc7beb0487e2968d977fe6facf219f9c38da69cf
   category: main
   optional: false
 - name: pexpect

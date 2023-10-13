@@ -1,12 +1,12 @@
 __all__ = ["SignalArray", "get_board_props"]
 
 import numpy as np
-from astropy import units as u
+from astropy import units as u # type: ignore
 from ._datafuncs import butt_low, sav_smooth
 from abc import ABC, abstractmethod
 from typing import Optional, List
 from dataclasses import dataclass
-from bapsflib.lapd import File as lapdfile
+from bapsflib.lapd import File as lapdfile # type: ignore
 
 
 @dataclass(frozen=True)
@@ -15,7 +15,7 @@ class BoardProperties:
     channel_nums: list[int]
     num_shots: int
     num_samples: int
-    adc_clk: float = 100e6
+    adc_clk: float
     sw_sample_avg: Optional[int] = None
     hw_sample_avg: Optional[int] = None
 
