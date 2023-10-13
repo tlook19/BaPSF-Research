@@ -13,30 +13,6 @@ from scipy.signal import butter, sosfiltfilt, savgol_filter
 from scipy.optimize import curve_fit
 
 
-def debug_plotter(xarr, yarr, debug_func=None, debug_vline=None, debug_hline=None):
-    plt.plot(xarr, yarr)
-    if debug_func is not None:
-        if hasattr(debug_func, "__iter__"):
-            for f in debug_func:
-                if callable(f):
-                    plt.plot(xarr, f(xarr))
-        elif callable(debug_func):
-            plt.plot(xarr, debug_func(xarr))
-    if debug_vline is not None:
-        if hasattr(debug_vline, "__iter__"):
-            for v in debug_vline:
-                plt.axvline(v)
-        else:
-            plt.axvline(debug_vline)
-    if debug_hline is not None:
-        if hasattr(debug_hline, "__iter__"):
-            for h in debug_hline:
-                plt.axhline(h)
-        else:
-            plt.axhline(debug_hline)
-    plt.show()
-
-
 def abs2(x):
     """
     Calculates the absolute square of a complex number. Works on ND arrays.
