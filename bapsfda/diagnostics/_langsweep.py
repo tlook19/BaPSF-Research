@@ -1,12 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from ..processing._datastructs import CurrentDaqArray, VoltageDaqArray
+# from ..processing._datastructs import DaqArray
 from ..processing._datafuncs import butt_low, sav_smooth
 from ..processing._fitfuncs import supergaussian, expfit
-from astropy import units as u
-from astropy.units.quantity import Quantity
-from astropy.constants import e, k_B, m_p
-from scipy.optimize import curve_fit
+from astropy import units as u # type: ignore
+from astropy.units.quantity import Quantity # type: ignore
+from astropy.constants import e, k_B, m_p # type: ignore
+from scipy.optimize import curve_fit # type: ignore
 
 __all__ = ["LangmuirSweep"]
 
@@ -46,7 +46,7 @@ class LangmuirSweep:
             "nsweeps": nsweeps,
         }
 
-    def slice_sweeps(self, isweep: CurrentDaqArray, vsweep: VoltageDaqArray):
+    def slice_sweeps(self, isweep, vsweep):
         """
         Take arrays of current and voltage traces and slice them into individual sweeps
         according to the parameters set in the LangmuirSweep object. Returns arrays of the slices
@@ -261,7 +261,7 @@ class LangmuirSweep:
         Returns:
             _type_: _description_
         """
-        isat = plasma_params[:, :, 0].to(u.A)
+        isat = plasma_params[:, :, 0].to(u.A) # type: ignore
         temp = (plasma_params[:, :, 3] * e / k_B).to(u.J)
         m_i = (ion_mass_factor * m_p).to(u.kg)
         area = probe_area.to(u.m**2)
