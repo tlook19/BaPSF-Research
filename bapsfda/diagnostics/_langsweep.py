@@ -75,17 +75,15 @@ class LangmuirSweep:
             )
         iu = isweep.signal_array.unit
         vu = vsweep.signal_array.unit
-        # isweep_filt = isweep.signal_array.value
-        # vsweep_filt = vsweep.signal_array.value
-        isweep_filt = butt_low(
+        isweep_filtered = butt_low(
             isweep.signal_array, 5e5, isweep.run_props["sample_freq"].value, order=4
         )
-        vsweep_filt = butt_low(
+        vsweep_filtered = butt_low(
             vsweep.signal_array, 5e5, vsweep.run_props["sample_freq"].value, order=4
         )
-        isweep_filt = np.moveaxis(
-            np.moveaxis(isweep_filt, 1, 0)
-            - np.average(isweep_filt[:, -2000:-1], axis=-1),
+        isweep_filtered = np.moveaxis(
+            np.moveaxis(isweep_filtered, 1, 0)
+            - np.average(isweep_filtered[:, -2000:-1], axis=-1),
             0,
             1,
         )
@@ -104,16 +102,16 @@ class LangmuirSweep:
             + self._sweep_params["t_start"]
         )
         v_slices = np.empty(
-            (vsweep_filt.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
+            (vsweep_filtered.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
         )
         i_slices = np.empty(
-            (isweep_filt.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
+            (isweep_filtered.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
         )
-        for i in range(vsweep_filt.shape[0]):
+        for i in range(vsweep_filtered.shape[0]):
             for j in range(self._sweep_params["nsweeps"]):
                 k = t_start_ind + j * t_period_ind
-                vsort = vsweep_filt[i, k : k + t_ramp_ind]
-                isort = isweep_filt[i, k : k + t_ramp_ind]
+                vsort = vsweep_filtered[i, k : k + t_ramp_ind]
+                isort = isweep_filtered[i, k : k + t_ramp_ind]
                 sort_ind = np.argsort(vsort)
                 v_slices[i, j] = sav_smooth(
                     np.take_along_axis(vsort, sort_ind, axis=0), 25
@@ -145,7 +143,7 @@ class LangmuirSweep:
         """Find the plasma potential for a single sweep via the first derivative method. Report Te estimate from super-gaussian fit.
 
         Args:
-            vslice (1d array): Voltage slice sorted monotically increasing.
+            vslice (1d array): Voltage slice sorted monotonically increasing.
             islice (1d array): Associated current slice.
 
         Returns:
@@ -158,7 +156,7 @@ class LangmuirSweep:
         #     print(f"arg_vp = {arg_vp}")
         #     print(f"i = {i}, j = {j}")
         #     self._plot_sweep_debug(vslice, islice, ivgrad, arg_vf, arg_vp)
-        #     raise Exception("Algorithim thinks plasma potential is less then vf.")
+        #     raise Exception("Algorithm thinks plasma potential is less then vf.")
         vp = vslice[arg_vp]
         a1, b1 = curve_fit(  # trying gaussian fit of vp to compare to max
             supergaussian,
@@ -197,7 +195,7 @@ class LangmuirSweep:
 
     def analyze_sweeps(self, v_slices, i_slices, t_pre_ind):
         """
-        Analyze sweeps and store the plamsa parameters in self.plasma_params.
+        Analyze sweeps and store the plasma parameters in self.plasma_params.
         plasma_params index corresponds to the following:
         0: Ion saturation current
         1: Floating potential
