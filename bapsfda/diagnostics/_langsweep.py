@@ -3,12 +3,11 @@ import matplotlib.pyplot as plt
 
 # from ..processing._datastructs import DaqArray
 from ..processing._datafuncs import butt_low, sav_smooth
-from ..processing._fitfuncs import supergaussian, expfit
+from ..processing._fitfuncs import sgaussian_half, gaussian, expfit
 from astropy import units as u  # type: ignore
 from astropy.units.quantity import Quantity  # type: ignore
 from astropy.constants import e, k_B, m_p  # type: ignore
 from scipy.optimize import curve_fit  # type: ignore
-from plasmapy.analysis import swept_langmuir as sla  # type: ignore
 
 __all__ = ["LangmuirSweep"]
 
@@ -39,48 +38,58 @@ class LangmuirSweep:
             raise Exception(
                 "Time array must have the same number of samples as the signal arrays."
             )
-        sample_freq = 1 / isweep.dt
-        isweep_filtered = butt_low(isweep, 5e5, sample_freq, order=4)
-        vsweep_filtered = butt_low(vsweep, 5e5, sample_freq, order=4)
+        sample_freq = (1 / isweep.dt).to(u.Hz).value
+        isweep_filtered = isweep
+        vsweep_filtered = vsweep
+        # isweep_filtered = butt_low(isweep, 5e5, sample_freq, order=4)
+        # vsweep_filtered = butt_low(vsweep, 5e5, sample_freq, order=4)
+        # removing DC offset from current signal
         isweep_filtered = np.moveaxis(
             np.moveaxis(isweep_filtered, 1, 0)
-            - np.average(isweep_filtered[:, -2000:-1], axis=-1),
+            - np.average(isweep_filtered[:, -100:-1], axis=-1),
             0,
             1,
         )
-        t_pre_ind = int((10 * u.us).to(u.s) * sample_freq)
-        t_start_ind = int(
-            self._sweep_params["t_start"].to(u.s) * sample_freq - t_pre_ind
-        )  # start 10 us early
-        t_ramp_ind = int(
-            self._sweep_params["t_ramp_up"].to(u.s) * sample_freq + t_pre_ind
-        )  # add 10 us to compensate for the 10 us early start
-        t_period_ind = int(self._sweep_params["t_period"].to(u.s) * sample_freq)
+        # take 50 samples off each side of ramp to avoid edge effects
+        t_start_ind = (
+            int(self._sweep_params["t_start"].to(u.s).value * sample_freq) + 50
+        )
+        t_ramp_ind = (
+            int(self._sweep_params["t_ramp_up"].to(u.s).value * sample_freq) - 100
+        )
+        t_period_ind = int(self._sweep_params["t_period"].to(u.s).value * sample_freq)
         ramp_times = (
             np.arange(self._sweep_params["nsweeps"]) * self._sweep_params["t_period"]
             + self._sweep_params["t_start"]
         )
+        print(t_start_ind, t_ramp_ind, t_period_ind)
+        print(ramp_times)
         v_slices = np.empty(
             (vsweep_filtered.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
         )
+        print(v_slices.shape)
         i_slices = np.empty(
             (isweep_filtered.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
         )
+        print(i_slices.shape)
         for i in range(vsweep_filtered.shape[0]):
             for j in range(self._sweep_params["nsweeps"]):
                 k = t_start_ind + j * t_period_ind
-                vsort = vsweep_filtered[i, k : k + t_ramp_ind]
-                isort = isweep_filtered[i, k : k + t_ramp_ind]
+                ramp_slice = slice(k, k + t_ramp_ind)
+                vsort = vsweep_filtered[i, ramp_slice]
+                isort = isweep_filtered[i, ramp_slice]
                 sort_ind = np.argsort(vsort)
-                v_slices[i, j] = sav_smooth(
-                    np.take_along_axis(vsort, sort_ind, axis=0), 25
-                )
-                i_slices[i, j] = sav_smooth(
-                    np.take_along_axis(isort, sort_ind, axis=0), 25
-                )
+                v_slices[i, j] = np.take_along_axis(vsort, sort_ind, axis=0)
+                i_slices[i, j] = np.take_along_axis(isort, sort_ind, axis=0)
+                # v_slices[i, j] = sav_smooth(
+                #     np.take_along_axis(vsort, sort_ind, axis=0), 25
+                # )
+                # i_slices[i, j] = sav_smooth(
+                #     np.take_along_axis(isort, sort_ind, axis=0), 25
+                # )
                 if i_slices[i, j, 0] > i_slices[i, j, -1]:
                     i_slices[i, j] *= -1  # flip if IV trace is inverted
-        return v_slices, i_slices, ramp_times, t_pre_ind
+        return v_slices, i_slices, ramp_times
 
     def _plot_sweep_debug(self, vslice, islice, i2, arg_vf, arg_vp):
         plt.plot(vslice, islice)
@@ -88,10 +97,6 @@ class LangmuirSweep:
         plt.axvline(vslice[arg_vf], color="k")
         plt.axvline(vslice[arg_vp], color="k")
         plt.show()
-
-    def _find_vf_plasmapy(self, vslice, islice, min_ponts=0.3):
-        vf, extras = sla.find_floating_potential(vslice, islice)
-        return vf, extras
 
     def _find_isat_vf(self, vslice, islice, t_pre_ind):
         arg_vf = islice.shape[0] - np.argmin(np.abs(islice[::-1]))
