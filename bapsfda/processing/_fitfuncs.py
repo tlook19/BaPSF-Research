@@ -37,7 +37,7 @@ def sgaussian_half(t, amp, mean, std):
     Returns:
         _type_: _description_
     """
-    return amp * np.exp(-abs(t - mean) / (np.sqrt(2) * std))
+    return abs(amp) * np.exp(-abs(t - mean) / (np.sqrt(2) * std))
 
 
 def expfit(t, tau, a, b, t0):

@@ -9,8 +9,8 @@ __all__ = [
 ]
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import butter, sosfiltfilt, savgol_filter # type: ignore
-from scipy.optimize import curve_fit # type: ignore
+from scipy.signal import butter, sosfiltfilt, savgol_filter  # type: ignore
+from scipy.optimize import curve_fit  # type: ignore
 
 
 def abs2(x):
@@ -47,7 +47,7 @@ def butt_low(sig, cut_freq, samp_freq, order=4):
     return filtered_sig
 
 
-def sav_smooth(a, b=10, axis=-1):
+def sav_smooth(a, b=10, **kwargs):
     """
     Wrapper for scipy.signal.savgol_filter to smooth a signal. Default window size is 1/10th of the signal length.
     Works on 1D and multi-D arrays (maybe? untested).
@@ -62,7 +62,7 @@ def sav_smooth(a, b=10, axis=-1):
     wind = a.shape[-1] // (b)
     if wind % 2 == 0:
         wind += 1
-    c = savgol_filter(a, wind, 1, axis=axis)
+    c = savgol_filter(a, wind, 1, **kwargs)
     return c
 
 

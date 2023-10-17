@@ -41,8 +41,6 @@ class LangmuirSweep:
         sample_freq = (1 / isweep.dt).to(u.Hz).value
         isweep_filtered = isweep
         vsweep_filtered = vsweep
-        # isweep_filtered = butt_low(isweep, 5e5, sample_freq, order=4)
-        # vsweep_filtered = butt_low(vsweep, 5e5, sample_freq, order=4)
         # removing DC offset from current signal
         isweep_filtered = np.moveaxis(
             np.moveaxis(isweep_filtered, 1, 0)
@@ -81,12 +79,6 @@ class LangmuirSweep:
                 sort_ind = np.argsort(vsort)
                 v_slices[i, j] = np.take_along_axis(vsort, sort_ind, axis=0)
                 i_slices[i, j] = np.take_along_axis(isort, sort_ind, axis=0)
-                # v_slices[i, j] = sav_smooth(
-                #     np.take_along_axis(vsort, sort_ind, axis=0), 25
-                # )
-                # i_slices[i, j] = sav_smooth(
-                #     np.take_along_axis(isort, sort_ind, axis=0), 25
-                # )
                 if i_slices[i, j, 0] > i_slices[i, j, -1]:
                     i_slices[i, j] *= -1  # flip if IV trace is inverted
         return v_slices, i_slices, ramp_times
@@ -109,7 +101,7 @@ class LangmuirSweep:
         # iline = a[0] * vslice + a[1]
         return isat, vf, isat_std, arg_vf
 
-    def _find_plasma_potential(self, vslice, islice):
+    def _find_plasma_potential(self, vslice, ivgrad):
         """Find the plasma potential for a single sweep via the first derivative method. Report Te estimate from super-gaussian fit.
 
         Args:
@@ -119,58 +111,17 @@ class LangmuirSweep:
         Returns:
             _type_: _description_
         """
-        ivgrad = np.gradient(islice, vslice)
-        arg_vp = np.argmax(ivgrad)
-        # if arg_vf > arg_vp:
-        #     print(f"arg_vf = {arg_vf}")
-        #     print(f"arg_vp = {arg_vp}")
-        #     print(f"i = {i}, j = {j}")
-        #     self._plot_sweep_debug(vslice, islice, ivgrad, arg_vf, arg_vp)
-        #     raise Exception("Algorithm thinks plasma potential is less then vf.")
-        vp = vslice[arg_vp]
-        a1, b1 = curve_fit(  # trying gaussian fit of vp to compare to max
-            supergaussian,
-            vslice,
-            ivgrad,
-            p0=[ivgrad[arg_vp], vp, 1],
-        )
+        a1, b1 = curve_fit(sgaussian_half, vslice, ivgrad)
+        vp = a1[1]
+        te = a1[2] / np.sqrt(2)
+        return vp, te
 
-        a2, b2 = curve_fit(
-            lambda t, amp, mean, temp: amp * np.exp(-abs(t - mean) / (2 * temp)),
-            vslice,
-            ivgrad,
-            p0=[ivgrad[arg_vp], vp, 1],
-        )
-        return vp, a2[2]
-
-    # def _find_te(self, vslice, islice, iline, arg_vf, arg_vp):
-    #     """Find Te by exponential fit to IV curve.
-
-    #     Args:
-    #         vslice (_type_): _description_
-    #         islice (bool): _description_
-    #     """
-    #     ecurr = islice - iline
-    #     a, b = curve_fit(
-    #         lambda t, amp, temp, offset: amp * np.exp((t + offset) / temp),
-    #         vslice[arg_vf // 2 : (arg_vp + arg_vf) // 2],
-    #         ecurr[arg_vf // 2 : (arg_vp + arg_vf) // 2],
-    #         p0=[1, 1, 0],
-    #     )
-    #     return a[1]
-
-    # def calculate_density(self, isat, temp, probe_area):
-    # def calibrate_probe_area_if(self, inter_trace):
-    # def calibrate_probe_area_ts(self, ts_density, ts_time):
-
-    def analyze_sweeps(self, v_slices, i_slices, t_pre_ind):
+    def analyze_sweeps(self, v_slices, i_slices):
         """
         Analyze sweeps and store the plasma parameters in self.plasma_params.
         plasma_params index corresponds to the following:
-        0: Ion saturation current
-        1: Floating potential
-        2: Plasma potential
-        3: Electron temperature
+        0: Plasma potential
+        1: Electron temperature
 
         TODO: Add error handling for bad fits
 
@@ -180,43 +131,20 @@ class LangmuirSweep:
 
         Returns:
         """
-        v_units = u.V
-        i_units = u.A
-        if type(v_slices) == Quantity:
-            v_units = v_slices.unit
-            v_slices = v_slices.value
-        if type(i_slices) == Quantity:
-            i_units = i_slices.unit
-            i_slices = i_slices.value
-        pp_units = np.array([i_units, v_units, v_units, v_units])
-        plasma_params = np.empty((v_slices.shape[0], v_slices.shape[1], 4))
-        for i in range(v_slices.shape[0]):
-            for j in range(v_slices.shape[1]):
-                (isat, vf, isat_std, arg_vf) = self._find_isat_vf(
-                    v_slices[i, j], i_slices[i, j], t_pre_ind
-                )
-                plasma_params[i, j, 0] = isat * -1
-                plasma_params[i, j, 1] = vf
-                plasma_params[i, j, 2], te1 = self._find_plasma_potential(
-                    v_slices[i, j, 2 * t_pre_ind :], i_slices[i, j, 2 * t_pre_ind :]
-                )
-                # te2 = self._find_te(
-                #     v_slices[i, j], i_slices[i, j], iline, arg_vf, arg_vp
-                # )
-                plasma_params[i, j, 3] = te1
-                # if abs(te1 - te2) / te1 > 0.1:
-                #     print(
-                #         f"greater then 10% difference in Te methods, TeG: {te1}, TeE: {te2}, relative error = {abs(te1 - te2) / te1}, shot: {i}, sweep: {j}"
-                #     )
-                # if isat_std / plasma_params[i, j, 0] > 0.1:
-                #     print(
-                #         f"greater then 10% std in isat, isat: {plasma_params[i, j, 0]}, std: {isat_std}, relative error = {isat_std / plasma_params[i, j, 0]}, shot: {i}, sweep: {j}"
-                #     )
-                # if np.any(np.sqrt(np.diag(isat_pcov)) > isat_std):
-                #     print(
-                #         f"isat_pcov error greater then isat_std, isat: {plasma_params[i, j, 0]}, std: {isat_std}, pcov: {np.sqrt(np.diag(isat_pcov))}, shot: {i}, sweep: {j}"
-                #     )
-        return plasma_params, pp_units
+        v_avg = np.mean(v_slices.reshape(61, 10, 28, 500), axis=1)
+        i_avg = np.mean(i_slices.reshape(61, 10, 28, 500), axis=1)
+        sorted_ind = np.argsort(v_avg, axis=2)
+        v_avg = np.take_along_axis(v_avg, sorted_ind, axis=2)
+        i_avg = np.take_along_axis(i_avg, sorted_ind, axis=2)
+        i_vsm = sav_smooth(i_avg, b=50, axis=-1)
+        plasma_params = np.empty((v_avg.shape[0], v_avg.shape[1], 2))
+        for i in range(v_avg.shape[0]):
+            for j in range(v_avg.shape[1]):
+                ivgrad = np.gradient(i_vsm[i, j], v_avg[i, j])
+                vp, te = self._find_plasma_potential(v_avg[i, j], ivgrad)
+                plasma_params[i, j, 0] = vp
+                plasma_params[i, j, 1] = te
+        return plasma_params
 
     def calculate_density(
         self, plasma_params: np.ndarray, probe_area: Quantity, ion_mass_factor: float
