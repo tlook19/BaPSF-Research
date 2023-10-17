@@ -11,7 +11,6 @@ import numpy as np
 @dataclass(frozen=True)
 class BoardProperties:
     board_num: int
-    channel_nums: list[int]
     num_shots: int
     num_samples: int
     sample_frequeny: float
@@ -37,7 +36,7 @@ class ChannelProperties:
 @dataclass
 class SISCrateChannel:
     crate_index: tuple[int, int]
-    board_props: Optional[BoardProperties] = None
+    board_props: Optional[str] = None
     channel_props: Optional[ChannelProperties] = None
     drive_props: Optional[DriveProperties] = None
 
@@ -50,15 +49,15 @@ class SISRun(DataRun):
     def __init__(self, file_path) -> None:
         self.file_path = file_path
         with lapdfile(file_path) as f:
-            self.board_props = get_board_props(f)
+            self.board_props, self.board_chans = get_board_props(f)
         self.channel_dict = {}
         self.num_shots = []
         for keybp, valuebp in self.board_props.items():
             bnum = valuebp.board_num
             self.num_shots.append(valuebp.num_shots)
-            for cnum in valuebp.channel_nums:
-                self.channel_dict["b_{bnum}_c_{cnum}"] = SISCrateChannel(
-                    (bnum, cnum), valuebp
+            for cnum in self.board_chans[keybp]:
+                self.channel_dict[f"b{bnum}_c{cnum}"] = SISCrateChannel(
+                    (bnum, cnum), keybp
                 )
         if all([_ == self.num_shots[0] for _ in self.num_shots]):
             self.num_shots = self.num_shots[0]
@@ -66,7 +65,10 @@ class SISRun(DataRun):
             raise ValueError("Number of shots varies across boards")
         self.drives = {}  # type: dict
 
-    def config_drive(self, drive_name, shots_per_pos, ny, nx, nz):
+    # TODO: parse this from motion lists
+    def config_drive(
+        self, drive_name: str, shots_per_pos: int, ny: int = 1, nx: int = 1, nz: int = 1
+    ):
         if shots_per_pos * ny * nx * nz != self.num_shots:
             raise ValueError(
                 f"Number of shots ({self.num_shots}) does not match "
@@ -102,14 +104,22 @@ class SISRun(DataRun):
         self.check_config(bc_key)
         with lapdfile(self.file_path) as f:
             bnum, cnum = self.channel_dict[bc_key].crate_index
-            sig = f.get_data(bnum, cnum)["signal"]
+            sig = np.array(f.read_data(bnum, cnum)["signal"])
         sig /= self.channel_dict[bc_key].channel_props.gain
         if self.channel_dict[bc_key].channel_props.resistance is not None:
             sig /= self.channel_dict[bc_key].channel_props.resistance
         return sig
 
+    def rename_channel(self, old_key, new_key):
+        if old_key not in self.channel_dict:
+            raise ValueError(f"{old_key} not found in channel_dict")
+        if new_key in self.channel_dict:
+            raise ValueError(f"{new_key} already in channel_dict")
+        self.channel_dict[new_key] = self.channel_dict[old_key]
+        del self.channel_dict[old_key]
 
-def get_board_props(file: lapdfile) -> dict:
+
+def get_board_props(file: lapdfile) -> tuple[dict, dict]:
     """
     _summary_
 
@@ -123,7 +133,8 @@ def get_board_props(file: lapdfile) -> dict:
     dict
         _description_
     """
-    boards = {}
+    board_props = {}
+    board_chans = {}
     digitizer = file.file_map.digitizers["SIS crate"]
     if digitizer is None:
         raise ValueError("No SIS Crate digitizer found in file")
@@ -137,21 +148,22 @@ def get_board_props(file: lapdfile) -> dict:
         for slot in digitizer.configs[active_config][adc]:
             bnum, chans, props = slot
             nt = props["nt"]
-            samp_freq = (
-                props["clock rate"].to(u.Hz).value
-                / props["sample average (hardware)"]
-                / props["shot average (software)"]
-            )
+            print(props)
+            samp_freq = props["clock rate"].to(u.Hz).value
+            if props["sample average (hardware)"] is not None:
+                samp_freq /= props["sample average (hardware)"]
+            # if props["shot average (software)"] is not None:
+            #     samp_freq /= props["shot average (software)"]
             dt = 1 / samp_freq
             time_array = np.arange(nt) * dt
             bprops = {
                 "board_num": bnum,
-                "channel_nums": [_ for _ in chans],
                 "num_shots": props["nshotnum"],
                 "num_samples": nt,
                 "sample_frequeny": samp_freq,
                 "time_step": dt,
                 "time_array": time_array,
             }
-            boards[f"board_{bnum}_props"] = BoardProperties(**bprops)
-    return boards
+            board_props[f"board_{bnum}"] = BoardProperties(**bprops)
+            board_chans[f"board_{bnum}"] = [_ for _ in chans]
+    return board_props, board_chans
