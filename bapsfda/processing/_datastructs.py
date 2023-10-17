@@ -104,7 +104,7 @@ class SISRun(DataRun):
         self.check_config(bc_key)
         with lapdfile(self.file_path) as f:
             bnum, cnum = self.channel_dict[bc_key].crate_index
-            sig = np.array(f.read_data(bnum, cnum)["signal"])
+            sig = f.read_data(bnum, cnum)["signal"]
         sig /= self.channel_dict[bc_key].channel_props.gain
         if self.channel_dict[bc_key].channel_props.resistance is not None:
             sig /= self.channel_dict[bc_key].channel_props.resistance

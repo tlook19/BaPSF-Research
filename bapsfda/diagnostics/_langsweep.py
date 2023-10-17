@@ -1,102 +1,61 @@
 import numpy as np
 import matplotlib.pyplot as plt
+
 # from ..processing._datastructs import DaqArray
 from ..processing._datafuncs import butt_low, sav_smooth
 from ..processing._fitfuncs import supergaussian, expfit
-from astropy import units as u # type: ignore
-from astropy.units.quantity import Quantity # type: ignore
-from astropy.constants import e, k_B, m_p # type: ignore
-from scipy.optimize import curve_fit # type: ignore
+from astropy import units as u  # type: ignore
+from astropy.units.quantity import Quantity  # type: ignore
+from astropy.constants import e, k_B, m_p  # type: ignore
+from scipy.optimize import curve_fit  # type: ignore
+from plasmapy.analysis import swept_langmuir as sla  # type: ignore
 
 __all__ = ["LangmuirSweep"]
 
 
 class LangmuirSweep:
-    """
-    Langmuir Sweep Class
-    Initialize with sweeping parameters. This class can then be used to slice the sweeps and analyze them.
-    """
-
+    @u.quantity_input
     def __init__(
         self,
-        t_start: Quantity,
-        t_ramp: Quantity,
-        t_period: Quantity,
+        t_start: u.ms,
+        t_ramp: u.ms,
+        t_period: u.ms,
         ramp_sym: float,
         nsweeps: int,
     ):
-        """_summary_
-
-        Args:
-            t_start (Quantity): _description_
-            t_ramp (Quantity): _description_
-            t_period (Quantity): _description_
-            ramp_sym (float): _description_
-            nsweeps (int): _description_
-
-        Raises:
-            Exception: _description_
-        """
-        if t_start.unit != u.ms or t_ramp.unit != u.ms or t_period.unit != u.ms:
-            raise Exception("Sweep t_ parameters must be in milliseconds.")
         self._sweep_params = {
-            "t_start": t_start,
-            "t_ramp_up": t_ramp * ramp_sym,
-            "t_period": t_period,
+            "t_start": t_start.to(u.ms),
+            "t_ramp_up": (t_ramp * ramp_sym).to(u.ms),
+            "t_period": t_period.to(u.ms),
             "nsweeps": nsweeps,
         }
 
-    def slice_sweeps(self, isweep, vsweep):
-        """
-        Take arrays of current and voltage traces and slice them into individual sweeps
-        according to the parameters set in the LangmuirSweep object. Returns arrays of the slices
-        with dimensions (nshots, nsweeps, t_ramp_ind), and an array of times corresponding to the
-        start of each sweep.
-
-        Args:
-            isweep (CurrentDaqArray): _description_
-            vsweep (VoltageDaqArray): _description_
-
-        Raises:
-            Exception: _description_
-            Exception: _description_
-            Exception: _description_
-
-        Returns:
-            _type_: _description_
-        """
+    def slice_sweeps(self, isweep, vsweep, t_array):
         if isweep.shape != vsweep.shape:
             raise Exception("Current and voltage signal arrays must be the same shape.")
-        if isweep.run_props["dt"] != vsweep.run_props["dt"]:
+        if isweep.dt != vsweep.dt:
             raise Exception("Current and voltage signals must have the same time step.")
-        if np.any(isweep.time_array != vsweep.time_array):
+        if t_array.shape[-1] != isweep.shape[-1]:
             raise Exception(
-                "Current and voltage signals must have the same time array."
+                "Time array must have the same number of samples as the signal arrays."
             )
-        iu = isweep.signal_array.unit
-        vu = vsweep.signal_array.unit
-        isweep_filtered = butt_low(
-            isweep.signal_array, 5e5, isweep.run_props["sample_freq"].value, order=4
-        )
-        vsweep_filtered = butt_low(
-            vsweep.signal_array, 5e5, vsweep.run_props["sample_freq"].value, order=4
-        )
+        sample_freq = 1 / isweep.dt
+        isweep_filtered = butt_low(isweep, 5e5, sample_freq, order=4)
+        vsweep_filtered = butt_low(vsweep, 5e5, sample_freq, order=4)
         isweep_filtered = np.moveaxis(
             np.moveaxis(isweep_filtered, 1, 0)
             - np.average(isweep_filtered[:, -2000:-1], axis=-1),
             0,
             1,
         )
-        t_pre_ind = int((10 * u.us).to(u.s) / isweep.run_props["dt"])
+        t_pre_ind = int((10 * u.us).to(u.s) * sample_freq)
         t_start_ind = int(
-            self._sweep_params["t_start"].to(u.s) / isweep.run_props["dt"] - t_pre_ind
+            self._sweep_params["t_start"].to(u.s) * sample_freq - t_pre_ind
         )  # start 10 us early
         t_ramp_ind = int(
-            self._sweep_params["t_ramp_up"].to(u.s) / isweep.run_props["dt"] + t_pre_ind
+            self._sweep_params["t_ramp_up"].to(u.s) * sample_freq + t_pre_ind
         )  # add 10 us to compensate for the 10 us early start
-        t_period_ind = int(
-            self._sweep_params["t_period"].to(u.s) / isweep.run_props["dt"]
-        )
+        t_period_ind = int(self._sweep_params["t_period"].to(u.s) * sample_freq)
         ramp_times = (
             np.arange(self._sweep_params["nsweeps"]) * self._sweep_params["t_period"]
             + self._sweep_params["t_start"]
@@ -119,7 +78,9 @@ class LangmuirSweep:
                 i_slices[i, j] = sav_smooth(
                     np.take_along_axis(isort, sort_ind, axis=0), 25
                 )
-        return v_slices * vu, i_slices * iu, ramp_times, t_pre_ind
+                if i_slices[i, j, 0] > i_slices[i, j, -1]:
+                    i_slices[i, j] *= -1  # flip if IV trace is inverted
+        return v_slices, i_slices, ramp_times, t_pre_ind
 
     def _plot_sweep_debug(self, vslice, islice, i2, arg_vf, arg_vp):
         plt.plot(vslice, islice)
@@ -127,6 +88,10 @@ class LangmuirSweep:
         plt.axvline(vslice[arg_vf], color="k")
         plt.axvline(vslice[arg_vp], color="k")
         plt.show()
+
+    def _find_vf_plasmapy(self, vslice, islice, min_ponts=0.3):
+        vf, extras = sla.find_floating_potential(vslice, islice)
+        return vf, extras
 
     def _find_isat_vf(self, vslice, islice, t_pre_ind):
         arg_vf = islice.shape[0] - np.argmin(np.abs(islice[::-1]))
@@ -261,7 +226,7 @@ class LangmuirSweep:
         Returns:
             _type_: _description_
         """
-        isat = plasma_params[:, :, 0].to(u.A) # type: ignore
+        isat = plasma_params[:, :, 0].to(u.A)  # type: ignore
         temp = (plasma_params[:, :, 3] * e / k_B).to(u.J)
         m_i = (ion_mass_factor * m_p).to(u.kg)
         area = probe_area.to(u.m**2)
