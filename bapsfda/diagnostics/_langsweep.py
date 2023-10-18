@@ -8,6 +8,7 @@ from astropy import units as u  # type: ignore
 from astropy.units.quantity import Quantity  # type: ignore
 from astropy.constants import e, k_B, m_p  # type: ignore
 from scipy.optimize import curve_fit  # type: ignore
+from ._interferometer import uwave_calib_factor
 
 __all__ = ["LangmuirSweep"]
 
@@ -166,3 +167,24 @@ class LangmuirSweep:
 
         electron_density = (isat) / (e * area) * np.sqrt(m_i / temp)
         return electron_density.to(u.cm**-3)
+
+    # TODO: Clean this up
+    def calibrate_density(
+        self,
+        isats: np.ndarray,
+        tes: np.ndarray,
+        xpos: np.ndarray,
+        ion_mass_factor: float,
+        int_array: np.ndarray,
+    ):
+        ucal = uwave_calib_factor(288e9, 2)
+        x = xpos * u.m
+        i = isats * u.A
+        cs = np.sqrt((tes * u.eV).to(u.J) / (ion_mass_factor * m_p))
+        nish = np.exp(1 / 2) * i / (e.si * cs)
+        nlid = np.trapz(nish, x, axis=0)
+        smint = sav_smooth(int_array * ucal, b=40, axis=-1)
+        t_int = np.round(((np.arange(4096) - 409.6) * 2.442e-5) * 1e3, 2)
+        t_int_ramp_ind = np.arange(self._sweep_params["nsweeps"]) * 41 + 410
+        area = (nlid / smint[t_int_ramp_ind]) * u.m**2
+        return area, t_int[t_int_ramp_ind]

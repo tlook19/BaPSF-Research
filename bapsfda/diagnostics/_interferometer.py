@@ -9,6 +9,10 @@ eps0 = const.epsilon_0
 c = const.speed_of_light
 
 
+def uwave_calib_factor(f_uwave, num_passes):
+    return 1.0 / ((num_passes / 4.0 / np.pi / f_uwave) * (e**2 / m_e / c / eps0))
+
+
 class Interferometer:
     def __init__(self, f_uwave, num_passes) -> None:
         calibration = 1.0 / (
