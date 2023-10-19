@@ -118,6 +118,17 @@ class SISRun(DataRun):
         self.channel_dict[new_key] = self.channel_dict[old_key]
         del self.channel_dict[old_key]
 
+    def extract_interfero(self):
+        from ..diagnostics import cal_288ghz_2pass as cal
+        from . import sav_smooth
+
+        with lapdfile(self.file_path) as f:
+            msi_int = f.read_msi("Interferometer array")
+            avgint = cal * (msi_int[1][1][1] + msi_int[0][1][1]) / 2
+        smint = sav_smooth(avgint, b=40, axis=-1)
+        t_int = np.round(((np.arange(4096) - 409.6) * 2.442e-5) * 1e3, 2)
+        return t_int, smint
+
 
 def get_board_props(file: lapdfile) -> tuple[dict, dict]:
     """

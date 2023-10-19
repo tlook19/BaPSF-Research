@@ -31,3 +31,6 @@ class Interferometer:
     def calculate_density(self, signal, ref_signal):
         dphase = self._get_phase(ref_signal) - self._get_phase(signal)
         return (dphase - dphase[0]) * self._inter_params["cal_factor"]
+
+
+cal_288ghz_2pass = uwave_calib_factor(288e9, 2)

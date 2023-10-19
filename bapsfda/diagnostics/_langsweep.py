@@ -61,16 +61,12 @@ class LangmuirSweep:
             np.arange(self._sweep_params["nsweeps"]) * self._sweep_params["t_period"]
             + self._sweep_params["t_start"]
         )
-        print(t_start_ind, t_ramp_ind, t_period_ind)
-        print(ramp_times)
         v_slices = np.empty(
             (vsweep_filtered.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
         )
-        print(v_slices.shape)
         i_slices = np.empty(
             (isweep_filtered.shape[0], self._sweep_params["nsweeps"], t_ramp_ind)
         )
-        print(i_slices.shape)
         for i in range(vsweep_filtered.shape[0]):
             for j in range(self._sweep_params["nsweeps"]):
                 k = t_start_ind + j * t_period_ind
