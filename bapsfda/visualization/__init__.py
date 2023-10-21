@@ -1,3 +1,3 @@
-# __all__ = ["plotting"]
+from ._plotting import *
 
-# from . import animation, plotting
+__all__ = ["plotting"]

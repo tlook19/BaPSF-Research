@@ -1,5 +1,68 @@
+__all__ = ["plot_3d_surf"]
+
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
+from matplotlib.ticker import LinearLocator
+
+
+def set_ax_labels(ax, **kwargs):
+    ax.set_xlabel(kwargs.get("xlabel", "x"))
+    ax.set_ylabel(kwargs.get("ylabel", "y"))
+    try:
+        ax.set_zlabel(kwargs.get("zlabel", "z"))
+    except AttributeError:
+        pass
+
+
+def plot_3d_surf(X, Y, Z, **kwargs):
+    """
+    Plots a 3D surface colormap plot.
+
+    Parameters
+    ----------
+    X, Y, Z : Array-like
+        Input data. See matplotlib.Axes.contour for supported data shapes.
+
+    file_name : str, optional
+        Filename to save plot to. If not provided, plot is not saved.
+
+    title : str, optional
+        Title for plot.
+
+    contour : bool, optional
+        Whether to plot contours on the x-y, x-z, and y-z planes.
+
+    xlabel, ylabel, zlabel : str, optional
+        Axes labels. Defaults to "x", "y", "z".
+
+    """
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    X, Y = np.meshgrid(X, Y)
+
+    # Plot the surface.
+    surf = ax.plot_surface(
+        X, Y, Z, cmap=cm.inferno, linewidth=0, antialiased=False, alpha=0.7
+    )
+    if kwargs.get("contour"):
+        ax.contour(X, Y, Z, zdir="z", offset=0, cmap="coolwarm")
+        ax.contour(X, Y, Z, zdir="x", offset=X[0, 0], cmap="coolwarm")
+        ax.contour(X, Y, Z, zdir="y", offset=Y[-1, 0], cmap="coolwarm")
+    # Customize the z axis.
+    # ax.set_zlim(0, 5)
+    # ax.zaxis.set_major_locator(LinearLocator(11))
+    # A StrMethodFormatter is used automatically
+    ax.zaxis.set_major_formatter("{x:.01f}")
+    set_ax_labels(ax, **kwargs)
+    if kwargs.get("title") is not None:
+        ax.set_title(kwargs.get("title"))
+    # Add a color bar which maps values to colors.
+    fig.colorbar(surf, shrink=0.5, aspect=20, pad=0.1)
+    if kwargs.get("file_name") is not None:
+        plt.savefig(kwargs.get("file_name"))
+    plt.show()
+    plt.close()
+
 
 # import matplotlib
 # import scaleogram as scg

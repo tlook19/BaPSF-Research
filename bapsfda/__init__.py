@@ -1,4 +1,4 @@
-submodules = ["analysis", "processing", "diagnostics"]
+submodules = ["analysis", "processing", "diagnostics", "visualization"]
 
 __all__ = submodules + [
     "__version__",
