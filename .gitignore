@@ -22,7 +22,10 @@ tags
 venv/
 .theia/
 .vscode/
-data/
+data/Thomson
+data/Movies
+data/analysisj23
+data/july2023
 
 # Compiled source #
 ###################
